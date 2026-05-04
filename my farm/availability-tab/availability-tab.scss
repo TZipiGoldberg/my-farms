@@ -1,0 +1,777 @@
+host {
+  display: block;
+  direction: rtl;
+  font-family: inherit;
+}
+ 
+.availability-page {
+  background: var(--bg, #f6f7f2);
+  min-height: 100vh;
+  padding: 24px 32px 40px;
+  box-sizing: border-box;
+}
+ 
+/* ============= טוסט ============= */
+ 
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2f3b22;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  z-index: 80;
+}
+ 
+/* ============= פופאפ אישור ============= */
+/* ============= פופאפ אישור (תואם פיגמה) ============= */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 32, 8, 0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.confirm-dialog {
+  position: relative;
+  width: 600px;
+  max-width: calc(100% - 32px);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 8px 35px rgba(0,0,0,0.22);
+}
+
+/* כפתור X */
+.icon-btn.close {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #f2f4ec;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* כותרת למעלה */
+.dialog-header {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #FFF4E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-circle img {
+  width: 22px;
+  height: 22px;
+}
+
+.dialog-titles h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.dialog-titles p {
+  margin: 0;
+  font-size: 14px;
+  color: #5b5b5b;
+  line-height: 1.4;
+}
+
+/* קופסת התראה צהובה */
+.impact-box {
+  background: #FFF8D9;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+/* רשימת ההורים */
+.parent-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 14px;
+  border: 1px solid #E4E7D9;
+  background: #FAFBF6;
+}
+
+.parent-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #EEF0E5;
+}
+
+.parent-row:last-child {
+  border-bottom: none;
+}
+
+.index-pill {
+  width: 26px;
+  height: 26px;
+  background: #E5EED7;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2F3B1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parent-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.parent-sub {
+  font-size: 13px;
+  color: #737373;
+}
+
+/* תיבת הערה למטה */
+.note-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 10px 12px;
+  background: #F3F5EB;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
+.note-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.8;
+  margin-top: 1px;
+}
+
+/* כפתורים בתחתית */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.btn.primary {
+  background: #4B6B2F;
+  border: 1px solid #4B6B2F;
+  color: #fff;
+  padding: 8px 20px;
+  font-weight: 500;
+}
+
+.btn.secondary {
+  background: #fff;
+  color: #334018;
+  border: 1px solid #D9E0C8;
+  padding: 8px 20px;
+}
+
+/* ============= כפתורים כלליים ============= */
+ 
+.btn {
+  border-radius: 999px;
+  padding: 8px 18px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+ 
+.btn.full {
+  width: 100%;
+  justify-content: center;
+}
+ 
+.btn-icon {
+  width: 16px;
+  height: 16px;
+}
+ 
+.btn.primary {
+  background: var(--primary, #4b6b2f);
+  border-color: var(--primary, #4b6b2f);
+  color: #fff;
+}
+ 
+.btn.primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+ 
+.btn.secondary {
+  background: #fff;
+  border-color: var(--line, #d9e0c8);
+  color: #334018;
+}
+ 
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: #555;
+}
+ 
+.icon-btn {
+  border: none;
+  background: #f3f5eb;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+ 
+.icon-btn.danger {
+  background: #fff1f0;
+  color: #b3261e;
+}
+ 
+/* ============= כותרת עמוד ============= */
+ 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+ 
+.page-header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+}
+ 
+.page-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+ 
+/* ============= לייאאוט כרטיסים ============= */
+ 
+.cards-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+ 
+.card {
+  background: var(--panel, #fff);
+  border-radius: 18px;
+  border: 1px solid var(--line, #e1e6d5);
+  padding: 16px 18px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+ 
+.card-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+}
+ 
+.card-header p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #777;
+}
+ 
+.card-footer {
+  margin-top: 12px;
+}
+ 
+/* ============= זמינות שבועית ============= */
+ 
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ 
+.day-card {
+  border-radius: 14px;
+  border: 1px solid #edf1dd;
+  background: #fafbf7;
+  padding: 10px 12px;
+}
+ 
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+ 
+.day-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+ 
+.day-name {
+  font-weight: 600;
+}
+ 
+.day-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e6efe0;
+  color: #31401b;
+}
+ 
+.day-body {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+ 
+.slot-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+ 
+.slot-box {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+ 
+.slot-field {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+ 
+@media (min-width: 900px) {
+  .slot-box {
+    flex-wrap: nowrap;
+  }
+}
+ 
+.break-row .slot-box {
+  flex-wrap: wrap;
+}
+ 
+@media (min-width: 900px) {
+  .break-row .slot-box {
+    flex-wrap: nowrap;
+  }
+}
+ 
+.lesson-type {
+  min-width: 0;
+}
+ 
+.time-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  border: 1px solid #dfe5d2;
+  background: #fff;
+  padding: 2px 10px;
+}
+ 
+.time-input input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+ 
+.clock-icon {
+  font-size: 18px;
+  opacity: 0.7;
+}
+ 
+.dash {
+  align-self: center;
+  font-size: 18px;
+  color: #999;
+}
+ 
+.select {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid #dfe5d2;
+  background: #fff;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+ 
+.section-separator {
+  border: none;
+  border-top: 1px dashed #dde3d0;
+  margin: 4px 0 2px;
+}
+ 
+.break-row .slot-box {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+ 
+.link-btn {
+  border: none;
+  background: transparent;
+  color: var(--primary, #4b6b2f);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 2px 0;
+}
+ 
+.link-btn mat-icon {
+  font-size: 18px;
+}
+ 
+/* ============= התראות ============= */
+ 
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+ 
+.notif-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef1e2;
+ 
+  &:last-child {
+    border-bottom: none;
+  }
+}
+ 
+.notif-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.notif-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+ 
+.notif-desc {
+  font-size: 12px;
+  color: #777;
+}
+ 
+.custom-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  display: inline-block;
+}
+ 
+.custom-toggle input {
+  display: none;
+}
+ 
+.custom-toggle .slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #d7ddcc;
+  transition: 0.2s;
+}
+ 
+.custom-toggle .slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  right: 3px;
+  transition: 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+ 
+.custom-toggle input:checked + .slider {
+  background: var(--primary, #4b6b2f);
+}
+ 
+.custom-toggle input:checked + .slider::before {
+  transform: translateX(-18px);
+}
+ 
+/* ============= רספונסיביות ============= */
+ 
+.mobile-only {
+  display: none;
+}
+ 
+@media (max-width: 1024px) {
+  .cards-layout {
+    grid-template-columns: 1fr;
+  }
+ 
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+ 
+  .page-header .btn.primary {
+    display: none;
+  }
+ 
+  .mobile-only {
+    display: block;
+  }
+ 
+  .slot-box {
+    grid-template-columns: 1fr;
+  }
+ 
+  .break-row .slot-box {
+    grid-template-columns: 1fr;
+  }
+}
+ 
+@media (max-width: 768px) {
+  .availability-page {
+    padding: 16px 12px 24px;
+  }
+ 
+  .cards-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+ 
+  .card {
+    padding: 12px 12px 14px;
+  }
+ 
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+ 
+  .page-header .btn.primary {
+    width: 100%;
+    justify-content: center;
+  }
+ 
+  .slot-row {
+    align-items: stretch;
+  }
+ 
+  .slot-box {
+    flex-direction: column;
+  }
+ 
+  .break-row .slot-box {
+    flex-direction: column;
+  }
+ 
+  .mobile-only {
+    display: block;
+  }
+}
+/* ============================= */
+/* ⭐ אייקונים במקום SVG         */
+/* ============================= */
+
+.icon-circle img {
+  display: none; /* מסתיר את ה-SVG שלא עובד בנטפרי */
+}
+
+.icon-circle::before {
+  font-family: 'Material Icons';
+  content: "warning"; /* אייקון אזהרה */
+  font-size: 22px;
+  color: #D67900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* תיבת הערה – מחליפה את lightbulb.svg */
+.note-icon {
+  display: none;
+}
+
+.note-box::before {
+  font-family: 'Material Icons';
+  content: "lightbulb";
+  font-size: 20px;
+  margin-top: 1px;
+  opacity: 0.8;
+}
+
+/* אייקון שמירה בכפתור */
+.btn.primary .btn-icon {
+  display: none;
+}
+
+.btn.primary::before {
+  font-family: 'Material Icons';
+  content: "save";
+  font-size: 18px;
+  margin-left: 4px;
+}
+.flash-error {
+  border: 2px solid #e53935 !important;
+  background: #fdecea;
+  animation: flashShake 0.3s;
+}
+
+@keyframes flashShake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+.placeholder-option {
+  font-weight: 700;
+  color: #c47f00; // זהב רך
+}
+.time-error {
+  color: #c62828;
+  font-size: 13px;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.time-input.error {
+  border: 1.5px solid #d64545;
+  background: #fff5f5;
+}
+
+.time-input.error input {
+  color: #b71c1c;
+}
+
+.time-error-tooltip {
+  position: absolute;
+  bottom: -22px;
+  right: 0;
+  background: #d64545;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 10;
+}
+.time-slot.error input {
+  border-color: #e53935;
+}
+
+.error-text {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
+}
+/* מצב שגיאה לטווח */
+.slot-box.error {
+  border: 1.5px solid #d32f2f;
+  background: #fff6f6;
+}
+
+/* שדות שעה אדומים */
+.slot-box.error input[type="time"],
+.slot-box.error select {
+  border-color: #d32f2f !important;
+  background-color: #fffafa;
+}
+
+/* אייקון שעון אדום */
+.slot-box.error .clock-icon {
+  color: #d32f2f;
+}
+.error-icon {
+  color: #d32f2f;
+  font-size: 20px;
+  cursor: help;
+  margin-top: 6px;
+}
+.slot-box.error {
+  border: 1px solid #c62828;
+}
+
+.slot-error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c62828;
+}
+.slot-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+}
+
+.slot-box.error {
+  border-color: #f2b8b5;   // אדום עדין
+  background: #fffafa;    // רקע ממש בהיר
+}
+
+.slot-error {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #c44;
+}
+.availability-card.locked {
+  opacity: 0.55;
+  pointer-events: none;
+}
+.locked-banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff4e5;
+  border: 1px solid #f0c36d;
+  padding: 12px;
+  margin-bottom: 12px;
+}

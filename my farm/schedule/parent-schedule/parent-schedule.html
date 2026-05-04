@@ -1,0 +1,70 @@
+<div class="toast" *ngIf="toastMessage">
+  {{ toastMessage }}
+</div>
+
+<div class="schedule-wrapper">
+  <div class="toolbar">
+    <div class="custom-dropdown" [class.open]="dropdownOpen">
+      <div
+        class="selected-child child-chip"
+        [class.is-all]="selectedChildId === 'all'"
+        [ngStyle]="{
+          'background-color':
+            selectedChildId === 'all'
+              ? '#f3f6e9'
+              : getColorForChild(selectedChildId)
+        }"
+        (click)="toggleDropdown()"
+        role="button"
+        tabindex="0"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="dropdownOpen"
+      >
+        <span class="swatch" *ngIf="selectedChildId !== 'all'"></span>
+        <span class="label">
+          {{ getChildName(selectedChildId) || '📚 כל הילדים' }}
+        </span>
+        <span class="arrow"></span>
+      </div>
+
+      <ul class="dropdown-list" *ngIf="dropdownOpen" role="listbox">
+        <li
+          class="menu-item is-all"
+          (click)="selectChild('all')"
+          [ngStyle]="{ 'background-color': '#f3f6e9' }"
+        >
+          <span class="icon">📚</span>
+          <span class="text">כל הילדים</span>
+        </li>
+
+        <li
+          class="menu-item"
+          *ngFor="let child of children"
+          (click)="selectChild(child.child_uuid)"
+          [ngStyle]="{ 'background-color': getColorForChild(child.child_uuid) }"
+        >
+          <span class="swatch"></span>
+          <span class="text">
+            {{ child.first_name }} {{ child.last_name }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div
+    class="next-cancel-note"
+    *ngIf="nextCanceledLessonNote"
+  >
+    {{ nextCanceledLessonNote }}
+  </div>
+  <app-schedule
+    [items]="items"
+    [initialView]="'timeGridDay'"
+    [rtl]="true"
+    [slotMinTime]="'07:00:00'"
+    [slotMaxTime]="'21:00:00'"
+    [allDaySlot]="false"
+    (eventClick)="onEventClick($event)"
+    (dateClick)="onDateClick($event.dateStr)"
+  ></app-schedule>
+</div>

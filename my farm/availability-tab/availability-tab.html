@@ -1,0 +1,291 @@
+<div class="availability-page">
+
+  <!-- טוסט הודעה -->
+  <div class="toast" *ngIf="toastMessage">
+    {{ toastMessage }}
+  </div>
+
+  <!-- באנר נעילת זמינות -->
+  <div class="locked-banner" *ngIf="!allowEdit">
+    <strong>הזמינות נעולה לעריכה.</strong>
+    <span>כדי לערוך את הזמינות יש לבקש מהמזכירה שתפתח את האפשרות.</span>
+  </div>
+
+  <!-- פופאפ אישור שינויים (רק מספר הורים, בלי שמות) -->
+  <div class="overlay" *ngIf="confirmData">
+    <div class="confirm-dialog">
+
+      <button class="icon-btn close" (click)="cancelUpdate()">×</button>
+
+      <div class="dialog-header">
+        <div class="icon-circle warning">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="11" fill="#FFF4E5"/>
+            <path d="M12 7v7" stroke="#C26400" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1.6" fill="#C26400"/>
+          </svg>
+        </div>
+
+        <div class="dialog-titles">
+          <h2>אישור שינויים בזמינות</h2>
+          <p>השינויים משפיעים על שיעורים מתוכננים</p>
+        </div>
+      </div>
+
+      <div class="impact-box">
+        נמצאו <strong>{{ confirmData.parentsCount }}</strong> הורים שהשינוי ישפיע עליהם.
+      </div>
+
+      <div class="note-box">
+        <svg class="note-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="11" fill="#FFFBE6"/>
+          <path d="M12 6a4 4 0 0 0-2 7.5V16h4v-2.5A4 4 0 0 0 12 6Z"
+                stroke="#D28A00" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M10 17h4" stroke="#D28A00" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>המזכירה תקבל התראה ותתאם מול ההורים לפני שינוי בפועל של שיעורים.</span>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="btn ghost" (click)="cancelUpdate()">ביטול</button>
+        <button class="btn primary" (click)="approveUpdate()">אישור ושמירה</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- פופאפ נעילת עריכה ראשונית -->
+  <div class="overlay" *ngIf="lockConfirm">
+    <div class="confirm-dialog">
+
+      <button class="icon-btn close" (click)="cancelLockConfirm()">×</button>
+
+      <div class="dialog-header">
+        <div class="icon-circle warning">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="11" fill="#FFF4E5"/>
+            <path d="M12 7v7" stroke="#C26400" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1.6" fill="#C26400"/>
+          </svg>
+        </div>
+
+        <div class="dialog-titles">
+          <h2>נעילת עריכת זמינות</h2>
+          <p>לאחר שמירה, עריכת זמינות תתאפשר רק דרך המזכירה.</p>
+        </div>
+      </div>
+
+      <div class="impact-box">האם להמשיך ולנעול את עריכת הזמינות?</div>
+
+      <div class="dialog-actions">
+        <button class="btn ghost" (click)="cancelLockConfirm()">ביטול</button>
+        <button class="btn primary" (click)="confirmLockAndSave()">אישור ושמירה</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== תוכן העמוד ===== -->
+
+  <header class="page-header">
+    <div>
+      <h1>העדפות זמינות והתראות</h1>
+      <p>הגדרת ימי עבודה, טווחי שעות וסוג רכיבה לכל טווח.</p>
+    </div>
+
+    <button class="btn primary" (click)="saveAvailability()" [disabled]="!isDirty">
+      שמור זמינות
+    </button>
+  </header>
+
+  <main class="cards-layout">
+
+    <!-- כרטיס זמינות -->
+    <section class="card availability-card">
+      <div class="card-header">
+        <h2>זמינות שבועית</h2>
+        <p>בחרי ימי עבודה, הוסיפי טווחי שעות ושייכי להם סוגי רכיבה.</p>
+      </div>
+
+      <div class="days-list">
+
+        <div class="day-card" *ngFor="let day of days">
+
+          <div class="day-header">
+            <div class="day-main">
+              <span class="day-name">{{ day.label }}</span>
+
+              <label class="custom-toggle">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="day.active"
+                  (change)="toggleDay(day)"
+                  [disabled]="!allowEdit || !isFarmWorkingDay(day.key)"
+                />
+                <span class="slider" [class.disabled]="!allowEdit"></span>
+              </label>
+            </div>
+
+            <span class="day-badge" *ngIf="day.active">
+              {{ day.slots.length }} טווחים
+            </span>
+          </div>
+
+          <div class="day-body" *ngIf="day.active">
+
+            <!-- טווחי שיעור -->
+            <div class="slot-row" *ngFor="let slot of day.slots; let i = index">
+
+              <button
+                class="icon-btn danger"
+                (click)="removeSlot(day, i)"
+                [class.disabled]="!allowEdit"
+                [disabled]="!allowEdit"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+
+             <div class="slot-box" [class.error]="slot.hasError">
+
+
+
+                <!-- התחלה -->
+                <div class="slot-field">
+                  <label>שעת התחלה</label>
+                  <div class="time-input">
+                    <mat-icon class="clock-icon">schedule</mat-icon>
+<input
+  type="time"
+  [(ngModel)]="slot.start"
+  (focus)="onSlotFocus(slot)"
+  (ngModelChange)="onTimeChange(day, slot)"
+  (blur)="onTimeBlur(day, slot)"
+  [disabled]="!allowEdit"
+/>
+                  </div>
+                </div>
+
+                <!-- סיום -->
+                <div class="slot-field">
+                  <label>שעת סיום</label>
+                  <div class="time-input">
+                    <mat-icon class="clock-icon">schedule</mat-icon>
+<input
+  type="time"
+  [(ngModel)]="slot.end"
+  (focus)="onSlotFocus(slot)"
+  (ngModelChange)="onTimeChange(day, slot)"
+  (blur)="onTimeBlur(day, slot)"
+  [disabled]="!allowEdit"
+/>
+                  </div>
+                  
+                </div>
+
+                <!-- סוג רכיבה -->
+                <div class="slot-field lesson-type">
+                  <label>סוג שיעור</label>
+
+                  <select
+  class="select"
+  [(ngModel)]="slot.ridingTypeId"
+  (change)="onRidingTypeChange(day, slot)"
+  [disabled]="!allowEdit"
+  [class.placeholder]="!slot.ridingTypeId"
+>
+  <option [ngValue]="null">בחר סוג רכיבה</option>
+
+  <option *ngFor="let rt of ridingTypes" [ngValue]="rt.id">
+    {{ rt.name }}
+  </option>
+</select>
+  <div class="slot-error" *ngIf="slot.hasError">
+    {{ slot.errorMessage }}
+  </div>
+                </div>
+
+              </div>
+              
+            </div>
+
+            <button
+              class="link-btn"
+              type="button"
+              (click)="addSlot(day)"
+              [class.disabled]="!allowEdit"
+              [disabled]="!allowEdit"
+            >
+              <mat-icon>add</mat-icon>
+              הוספת טווח זמן חדש
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-footer mobile-only">
+        <button class="btn primary full" (click)="saveAvailability()" [disabled]="!isDirty">
+          שמור זמינות
+        </button>
+      </div>
+
+    </section>
+
+    <!-- כרטיס התראות -->
+    <section class="card notifications-card">
+      <div class="card-header">
+        <h2>העדפות התראות</h2>
+        <p>בחירה אילו התראות לקבל מהמערכת.</p>
+      </div>
+
+      <div class="notif-list">
+
+        <div class="notif-row">
+          <div class="notif-texts">
+            <div class="notif-title">ביטול שיעור</div>
+            <div class="notif-desc">התראה כאשר שיעור מבוטל.</div>
+          </div>
+
+          <label class="custom-toggle">
+            <input type="checkbox" [(ngModel)]="notif.cancelLesson" [disabled]="!allowEdit" />
+            <span class="slider" [class.disabled]="!allowEdit"></span>
+          </label>
+        </div>
+
+        <div class="notif-row">
+          <div class="notif-texts">
+            <div class="notif-title">תזכורת לפני שיעור</div>
+            <div class="notif-desc">התראה קצרה לפני תחילת שיעור.</div>
+          </div>
+
+          <label class="custom-toggle">
+            <input type="checkbox" [(ngModel)]="notif.reminder" [disabled]="!allowEdit" />
+            <span class="slider" [class.disabled]="!allowEdit"></span>
+          </label>
+        </div>
+
+        <div class="notif-row">
+          <div class="notif-texts">
+            <div class="notif-title">דוח חודשי במייל</div>
+            <div class="notif-desc">סיכום חודשי יישלח אלייך בדוא"ל.</div>
+          </div>
+
+          <label class="custom-toggle">
+            <input type="checkbox" [(ngModel)]="notif.monthlyReport" [disabled]="!allowEdit" />
+            <span class="slider" [class.disabled]="!allowEdit"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="card-footer">
+        <button class="btn secondary full" (click)="saveNotifications()" [disabled]="!userId">
+          שמור העדפות התראות
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+</div>

@@ -1,0 +1,396 @@
+/* ============================
+   עטיפה כללית
+=============================== */
+.instructor-schedule {
+  direction: rtl;
+  font-family: "Heebo", sans-serif;
+  padding: 16px;
+  position: relative;
+}
+
+/* ============================
+   עטיפת לוח השנה
+=============================== */
+.schedule-wrap {
+  background: #fffdf7;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transition: all .2s ease;
+
+  &.fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    border-radius: 0;
+    padding: 16px;
+    background: #f7f8f3;
+  }
+}
+
+/* ============================
+   טולבר
+=============================== */
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #f2f4ea;
+}
+
+.btn-group {
+  display: flex;
+  gap: 4px;
+
+  button {
+    border: none;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+
+    &.active {
+      background: #cdd8aa;
+      font-weight: 600;
+    }
+  }
+}
+
+.current-date {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ============================
+   תפריט קליק ימני
+=============================== */
+.context-menu {
+  position: fixed;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  z-index: 3000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+}
+
+.context-menu button {
+  padding: 10px;
+  border: none;
+  text-align: right;
+  background: #fff;
+  cursor: pointer;
+}
+
+.context-menu button:hover {
+  background: #f2f2f2;
+}
+
+/* ============================
+   BACKDROP – רק אחד!
+=============================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 3500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================
+   MODAL – המקורית (מתוקנת)
+=============================== */
+.modal {
+  background: #fff;
+  padding: 20px;
+  width: 360px;
+  max-width: 95%;
+  max-height: calc(100vh - 40px); /* ⭐ מונע חיתוך */
+  overflow-y: auto;               /* ⭐ גלילה פנימית */
+  border-radius: 12px;
+  text-align: right;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+
+  margin-top: 20px; /* ⭐ מרחיק מהחלק העליון */
+}
+
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+/* ============================
+   שדות
+=============================== */
+.field-row {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 13px;
+    color: #4d4d4d;
+  }
+
+  input,
+  select,
+  textarea {
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    font-family: inherit;
+    font-size: 13px;
+  }
+}
+
+.time-row {
+  display: flex;
+  gap: 10px;
+
+  > div {
+    flex: 1;
+  }
+}
+
+.modal textarea {
+  width: 100%;
+  height: 100px;
+}
+
+/* ============================
+   כפתורים
+=============================== */
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.modal-actions button {
+  min-width: 80px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.modal-actions .confirm {
+  background: #4caf50;
+  color: #fff;
+}
+
+.modal-actions .cancel {
+  background: #ccc;
+}
+
+/* ============================
+   אישור / דחייה
+=============================== */
+.approval-menu {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #aaa;
+  padding: 15px;
+  border-radius: 12px;
+  z-index: 3600;
+  width: 260px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ============================
+   צביעת בקשות
+=============================== */
+.day-request-pending { background-color: #fff3cd !important; }
+.day-request-approved { background-color: #d4edda !important; }
+.day-request-rejected { background-color: #f8d7da !important; }
+
+/* ============================
+   סיכום חודשי
+=============================== */
+:host ::ng-deep .fc-daygrid-event.summary {
+  background: var(--olive-50);
+  border: 1.5px solid var(--olive-300);
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+
+/* ============================
+   אירועי לוז
+=============================== */
+:host ::ng-deep .bereshit-calendar .event-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  min-height: 24px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* ============================
+   חופשת חווה
+=============================== */
+.fc .farm-day-off {
+  background-color: rgba(255, 183, 77, 0.35) !important;
+  border: none !important;
+}
+/* ===== תיקון מיקום מודאל – לא צמוד למעלה ===== */
+.modal-backdrop {
+  align-items: flex-start;   /* במקום center */
+  padding-top: 64px;         /* ריווח מהחלק העליון */
+}
+
+/* רספונסיבי – מובייל */
+@media (max-width: 600px) {
+  .modal-backdrop {
+    padding-top: 48px;
+  }
+}
+/* ============================
+   CONFIRM DIALOG – כמו זמינות
+=============================== */
+
+.confirm-dialog {
+  background: #fff;
+  width: 420px;
+  max-width: 95%;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  position: relative;
+}
+
+.icon-btn.close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.dialog-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.icon-circle.warning {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff4e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.dialog-titles h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.dialog-titles p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.impact-box {
+  background: #fff4e5;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.parent-list {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.parent-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.index-pill {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #cdd8aa;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parent-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.parent-sub {
+  font-size: 12px;
+  color: #666;
+}
+
+.note-box {
+  background: #fffbe6;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn.primary {
+  background: #4caf50;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+/* ============================
+   OVERLAY – חובה לפופאפ הורים
+=============================== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 6000; /* מעל FullCalendar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

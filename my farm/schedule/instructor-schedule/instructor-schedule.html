@@ -1,0 +1,165 @@
+<div class="instructor-schedule" dir="rtl">
+  <div class="schedule-wrap" [class.fullscreen]="isFullscreen">
+
+    <!-- ▬▬▬ לוח שנה ▬▬▬ -->
+    <div class="bereshit-calendar calendar-host">
+      <app-schedule
+        [items]="items"
+        [initialView]="currentView"
+        (eventClick)="onEventClick($event)"
+        (dateClick)="onDateClick($event)"
+        (viewRange)="onViewRangeChange($event)"
+        (rightClickDay)="onRightClickDay($event)">
+      </app-schedule>
+    </div>
+
+  </div>
+
+  <!-- ▬▬▬ תפריט קליק ימני ▬▬▬ -->
+  <div
+    class="context-menu"
+    *ngIf="contextMenu.visible"
+    [style.top.px]="contextMenu.y"
+    [style.left.px]="contextMenu.x">
+    <button (click)="openRequest('holiday')">🏖️ יום חופש</button>
+    <button (click)="openRequest('sick')">🤒 יום מחלה</button>
+    <button (click)="openRequest('personal')">📌 יום אישי</button>
+    <button (click)="openRequest('other')">📝 אחר</button>
+  </div>
+</div>
+
+<!-- 🔴 כאן! כרטסת הילד -->
+<app-note
+  *ngIf="selectedChild && selectedOccurrence"
+  [child]="selectedChild"
+  [occurrence]="selectedOccurrence"
+  [attendanceStatus]="attendanceStatus"
+  [role]="currentUserRole"
+  (attendanceChange)="attendanceStatus = $event"
+  (close)="onCloseNote()">
+</app-note>
+
+<!-- ▬▬▬ מודאל בקשת חופש ▬▬▬ -->
+<div class="modal-backdrop" *ngIf="rangeModal.open">
+  <div class="modal">
+
+    <h3>בקשת היעדרות</h3>
+
+    <div class="date-row">
+      <div class="field-row">
+        <label>מתאריך</label>
+        <input type="date" [(ngModel)]="rangeModal.from" />
+      </div>
+
+      <div class="field-row">
+        <label>עד תאריך</label>
+        <input type="date" [(ngModel)]="rangeModal.to" />
+      </div>
+    </div>
+
+    <div class="all-day-row">
+      <input type="checkbox" [(ngModel)]="rangeModal.allDay" />
+      <label>יום מלא</label>
+    </div>
+
+    <div *ngIf="!rangeModal.allDay" class="date-row">
+      <div class="field-row">
+        <label>משעה</label>
+        <input type="time" [(ngModel)]="rangeModal.fromTime" />
+      </div>
+
+      <div class="field-row">
+        <label>עד שעה</label>
+        <input type="time" [(ngModel)]="rangeModal.toTime" />
+      </div>
+    </div>
+
+    <div class="field-row">
+  <div class="field-row">
+  <label>סיבת הבקשה</label>
+
+  <div
+    class="field-row"
+    *ngIf="rangeModal.type === 'sick'"
+  >
+    <label>אישור מחלה (אופציונלי)</label>
+    <input
+      type="file"
+      accept=".pdf,image/*"
+      (change)="onSickFileSelected($event)"
+    />
+  </div>
+
+  <textarea [(ngModel)]="rangeModal.text"></textarea>
+</div>
+
+    <div class="modal-actions">
+      <button class="cancel" (click)="closeRangeModal()">ביטול</button>
+      <button class="confirm" (click)="submitRange()">שמור</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ✅ פופאפ הורים מושפעים (חייב להיות OUTSIDE ל-rangeModal.open) -->
+<!-- פופאפ הורים מושפעים – בדיוק כמו בהעדפות זמינות -->
+<div class="overlay" *ngIf="showAffectedParentsPopup">
+  <div class="confirm-dialog">
+
+    <button class="icon-btn close" (click)="cancelAffectedPopup()">×</button>
+
+    <div class="dialog-header">
+      <div class="icon-circle warning">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="11" fill="#FFF4E5"/>
+          <path d="M12 7v7" stroke="#C26400" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="17" r="1.6" fill="#C26400"/>
+        </svg>
+      </div>
+
+      <div class="dialog-titles">
+        <h2>אישור בקשת חופש</h2>
+        <p>בקשת החופש משפיעה על שיעורים מתוכננים</p>
+      </div>
+    </div>
+
+    <div class="impact-box">
+      נמצאו <strong>{{ affectedParents.length }}</strong> הורים שהשינוי ישפיע עליהם.
+    </div>
+
+    <div class="parent-list" *ngIf="affectedParents?.length">
+      <div
+        class="parent-row"
+        *ngFor="let p of affectedParents; let i = index"
+      >
+        <div class="index-pill">{{ i + 1 }}</div>
+        <div class="parent-text">
+          <div class="parent-name">
+            {{ p.first_name }} {{ p.last_name }}
+          </div>
+          <div class="parent-sub">
+            {{ p.phone }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <span>
+        המזכירה תקבל התראה ותתאם מול ההורים לפני שינוי בפועל של שיעורים.
+      </span>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn ghost" (click)="cancelAffectedPopup()">
+        ביטול
+      </button>
+      <button class="btn primary" (click)="confirmSaveAfterWarning()">
+        אישור והמשך
+      </button>
+    </div>
+
+  </div>
+</div>
+
+

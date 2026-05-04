@@ -1,0 +1,92 @@
+.card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* כפתורי ניווט ותצוגה */
+.view-buttons button,
+.actions button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: 0.2s;
+}
+.view-buttons button:hover,
+.actions button:hover {
+  background: #f1f1f1;
+}
+.view-buttons button.active {
+  background: #2c7be5;
+  border-color: #2c7be5;
+  color: #fff;
+}
+
+/* כותרת תאריך */
+.current-date {
+  font-weight: bold;
+  margin-top: 6px;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* עיצוב FullCalendar */
+::ng-deep .fc {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* ביטול עיצוב ברירת מחדל לאירועים */
+::ng-deep .fc-event {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* קופסה מותאמת לאירוע */
+.event-box {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-inline-start: 5px solid transparent; /* קו בצד ימין */
+}
+
+/* סטטוסים שונים */
+.event-box.active {
+  background: #e5f9e7;
+  border-inline-start-color: #3bb54a;
+}
+.event-box.lesson {
+  background: #e7f0ff;
+  border-inline-start-color: #2c7be5;
+}
+.event-box.free {
+  background: #f9f9f9;
+  border-inline-start-color: #aaa;
+}
+
+/* טקסט פנימי */
+.event-box .time { 
+  font-weight: bold; 
+  font-size: 13px;
+}
+.event-box .title { 
+  margin: 2px 0; 
+  font-size: 14px;
+}
+.event-box .status {
+  font-size: 12px;
+  color: #666;
+}
+

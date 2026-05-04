@@ -1,0 +1,39 @@
+<div class="schedule-wrap" [class.fullscreen]="isFullscreen">
+ <div class="card calendar-toolbar" *ngIf="showToolbar">
+
+    <div class="view-buttons btn-group">
+      <button (click)="changeView('timeGridDay')" [class.active]="currentView === 'timeGridDay'">
+        יומי
+      </button>
+      <button (click)="changeView('timeGridWeek')" [class.active]="currentView === 'timeGridWeek'">
+        שבועי
+      </button>
+      <button (click)="changeView('dayGridMonth')" [class.active]="currentView === 'dayGridMonth'">
+        חודשי
+      </button>
+    </div>
+
+    <div class="current-date">{{ currentDate }}</div>
+
+    <div class="actions btn-group">
+      <button (click)="prev()">קודם</button>
+      <button (click)="today()">היום</button>
+      <button (click)="next()">הבא</button>
+
+      <button class="fullscreen-btn" (click)="toggleFullscreen()">
+        {{ isFullscreen ? 'צמצם' : 'מסך מלא' }}
+      </button>
+
+      <!-- 👇 חדש – רק כשיש enableAutoAssign ובתצוגת יום -->
+      <button *ngIf="enableAutoAssign && currentView === 'timeGridDay'" class="assign-btn" type="button"
+        (click)="onAutoAssignClick()">
+        שבץ סוסים ומגרשים
+      </button>
+
+    </div>
+  </div>
+
+  <div class="bereshit-calendar calendar-host">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+  </div>
+</div>

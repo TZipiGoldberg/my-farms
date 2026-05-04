@@ -1,0 +1,358 @@
+<div class="note-overlay" (click)="onBackdropClick($event)">
+  <mat-card class="sheet" (click)="$event.stopPropagation()">
+
+    <!-- HEADER (sticky) -->
+    <div class="sheet-header">
+      <div class="header-main">
+        <mat-icon class="avatar">person</mat-icon>
+
+        <div class="header-text">
+          <div class="child-name">{{ childName }}</div>
+
+          <div class="lesson-subline" *ngIf="occurrence">
+            <span class="sub-pill">
+              <mat-icon>event</mat-icon>
+              {{ occurrence?.occur_date | date:'dd/MM/yyyy' }}
+            </span>
+
+            <span class="dot">•</span>
+
+            <span class="sub-pill" *ngIf="lessonDetails?.start_time">
+              <mat-icon>schedule</mat-icon>
+              {{ lessonDetails.start_time?.slice(0,5) }}–{{ lessonDetails.end_time?.slice(0,5) }}
+            </span>
+
+            <span class="dot">•</span>
+
+            <!-- Attendance chip -->
+            <span
+              class="att-chip"
+              *ngIf="attendanceStatus"
+              [class.present]="attendanceStatus === 'present'"
+              [class.absent]="attendanceStatus === 'absent'">
+
+              <mat-icon>{{ attendanceStatus === 'present' ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ attendanceStatus === 'present' ? 'הגיע' : 'לא הגיע' }}
+            </span>
+
+            <span class="att-chip empty" *ngIf="!attendanceStatus && canEditNotes">
+              <mat-icon>help</mat-icon>
+              נוכחות
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button mat-icon-button class="icon-btn close" (click)="tryClose()" title="סגור">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- TOP WARNINGS (compact) -->
+   <div class="top-alerts" *ngIf="!isInitializing">
+      <div class="alert warn" *ngIf="mustChooseAttendance">
+        <mat-icon>error_outline</mat-icon>
+        חובה לבחור נוכחות לפני סגירה.
+      </div>
+
+      <div class="alert warn" *ngIf="!mustChooseAttendance && mustFillNoteForPresent">
+        <mat-icon>error_outline</mat-icon>
+        אחרי סימון "הגיע" – חובה להוסיף הערה חדשה לפני סגירה.
+      </div>
+
+      <div class="alert info" *ngIf="showEarlyAttendanceWarning">
+        <mat-icon>info</mat-icon>
+        לא ניתן להכניס נוכחות מוקדם כל־כך.
+      </div>
+    </div>
+
+    <!-- BODY (single scroll) -->
+    <div class="sheet-body" #scrollable>
+
+      <!-- QUICK CHILD SUMMARY -->
+      <section class="block" *ngIf="childDetails">
+        <div class="block-title">
+          <mat-icon>badge</mat-icon>
+          <span>פרטי ילד</span>
+        </div>
+
+        <div class="quick-grid">
+          <div class="quick" *ngIf="childDetails.birth_date">
+            <span class="k">גיל</span>
+            <span class="v">{{ getChildAge(childDetails.birth_date) }}</span>
+          </div>
+
+          <div class="quick" *ngIf="childDetails.parent_name">
+            <span class="k">הורה</span>
+            <span class="v">{{ childDetails.parent_name }}</span>
+          </div>
+
+          <div class="quick" *ngIf="childDetails.parent_phone">
+            <span class="k">טלפון</span>
+            <span class="v">{{ childDetails.parent_phone }}</span>
+          </div>
+
+          <div class="quick span-2" *ngIf="childDetails.parent_email">
+            <span class="k">אימייל</span>
+            <span class="v">{{ childDetails.parent_email }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ATTENDANCE (only if not chosen yet) -->
+      <section class="block" *ngIf="occurrence && canEditNotes && !occurrence?.isCancelled && !attendanceStatus">
+        <div class="block-title">
+          <mat-icon>how_to_reg</mat-icon>
+          <span>נוכחות</span>
+        </div>
+
+        <div class="segmented" (click)="onAttendanceAttempt()">
+          <button
+            mat-stroked-button
+            class="seg"
+            [disabled]="!canMarkAttendanceNow()"
+            (click)="setAttendance('present')">
+            הגיע
+          </button>
+
+          <button
+            mat-stroked-button
+            class="seg danger"
+            [disabled]="!canMarkAttendanceNow()"
+            (click)="setAttendance('absent')">
+            לא הגיע
+          </button>
+        </div>
+      </section>
+
+      <!-- LESSON DETAILS -->
+      <section class="block" *ngIf="lessonDetails">
+        <div class="block-title">
+          <mat-icon>assignment</mat-icon>
+          <span>פרטי שיעור</span>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta">
+            <span class="k">סוג שיעור</span>
+            <span class="v">{{ lessonDetails.lesson_type || '—' }}</span>
+          </div>
+
+          <div class="meta">
+            <span class="k">סטטוס</span>
+            <span class="v">{{ lessonDetails.status || '—' }}</span>
+          </div>
+        </div>
+
+        <!-- CANCELLED / MAKEUP -->
+        <div class="makeup-card" *ngIf="lessonDetails?.status === 'בוטל'">
+          <div class="mk-left">
+            <mat-icon>cached</mat-icon>
+            <div>
+              <div class="mk-title">שיעור מבוטל</div>
+              <div class="mk-sub">אפשר לאפשר השלמה לילד</div>
+            </div>
+          </div>
+
+          <!-- 🟢 עריכה רק למזכירה/מנהל/אדמין -->
+          <mat-slide-toggle
+            *ngIf="canEditMakeupAllowed"
+            color="primary"
+            [(ngModel)]="lessonDetails.is_makeup_allowed"
+            (ngModelChange)="onMakeupAllowedChange($event)">
+            ניתן להשלמה
+          </mat-slide-toggle>
+
+          <!-- 🔒 תצוגה בלבד לאחרים -->
+          <div *ngIf="!canEditMakeupAllowed" class="readonly-makeup">
+            <mat-icon>{{ lessonDetails.is_makeup_allowed ? 'check_circle' : 'cancel' }}</mat-icon>
+            {{ lessonDetails.is_makeup_allowed ? 'להשלמה' : 'לא להשלמה' }}
+          </div>
+        </div>
+
+        <!-- RESOURCES -->
+        <div class="resources-grid">
+          <mat-form-field appearance="fill" class="resource-field no-floating">
+            <mat-select
+              placeholder="סוס"
+              [(ngModel)]="lessonDetails.horse_id"
+              (selectionChange)="onHorseChange($event.value)"
+              [disabled]="!canEditLessonResources">
+              <mat-option [value]="null">— ללא סוס —</mat-option>
+              <mat-option *ngFor="let h of horses" [value]="h.id">{{ h.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="resource-field no-floating">
+            <mat-select
+              placeholder="מגרש"
+              [(ngModel)]="lessonDetails.arena_id"
+              (selectionChange)="onArenaChange($event.value)"
+              [disabled]="!canEditLessonResources">
+              <mat-option [value]="null">— ללא מגרש —</mat-option>
+              <mat-option *ngFor="let a of arenas" [value]="a.id">{{ a.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <!-- NOTES (Accordion compact) -->
+      <section class="block">
+        <div class="block-title">
+          <mat-icon>sticky_note_2</mat-icon>
+          <span>הערות</span>
+        </div>
+
+        <details class="acc" [attr.open]="notesGeneral!.length ? '' : null">
+          <summary>
+            <span>הערות שיעורים</span>
+            <span class="count">{{ notesGeneral!.length || 0 }}</span>
+          </summary>
+
+          <div class="acc-body">
+            <p class="empty" *ngIf="!notesGeneral!.length">אין הערות שיעורים.</p>
+
+            <div *ngFor="let note of notesGeneral; trackBy: trackByNote" class="note-card">
+              <div class="note-top">
+                <div *ngIf="!note.isEditing; else editTpl" class="note-text">
+                  {{ note.display_text }}
+                </div>
+
+                <ng-template #editTpl>
+                  <textarea [(ngModel)]="note.display_text" rows="2"></textarea>
+                </ng-template>
+
+                <div class="note-actions" *ngIf="canEditNotes">
+                  <button mat-icon-button class="a edit" (click)="startEdit(note)" *ngIf="!note.isEditing">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+
+                  <button mat-icon-button class="a save" (click)="saveEdit(note)" *ngIf="note.isEditing">
+                    <mat-icon>check</mat-icon>
+                  </button>
+
+                  <button mat-icon-button class="a del" (click)="deleteNote(note.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="note-meta">
+                {{ note.instructor_name || 'מזכירה' }} · {{ note.created_at | date:'dd.MM.yyyy HH:mm' }}
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="acc" [attr.open]="notesMedical!.length ? '' : null">
+          <summary>
+            <span>הערות רפואיות</span>
+            <span class="count">{{ notesMedical!.length || 0 }}</span>
+          </summary>
+          <div class="acc-body">
+            <p class="empty" *ngIf="!notesMedical!.length">אין הערות רפואיות.</p>
+            <div class="plain" *ngFor="let n of notesMedical">{{ n.display_text }}</div>
+          </div>
+        </details>
+
+        <details class="acc" [attr.open]="notesBehavioral!.length ? '' : null">
+          <summary>
+            <span>הערות התנהגותיות</span>
+            <span class="count">{{ notesBehavioral!.length || 0 }}</span>
+          </summary>
+          <div class="acc-body">
+            <p class="empty" *ngIf="!notesBehavioral!.length">אין הערות התנהגותיות.</p>
+            <div class="plain" *ngFor="let n of notesBehavioral">{{ n.display_text }}</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ADD NOTE -->
+      <section class="block" *ngIf="canEditNotes">
+        <div class="block-title">
+          <mat-icon>add_comment</mat-icon>
+          <span>הוספת הערה</span>
+        </div>
+
+        <mat-form-field appearance="fill" class="full">
+          <mat-label>כתוב הערה</mat-label>
+          <textarea matInput [(ngModel)]="newNote" rows="2"></textarea>
+        </mat-form-field>
+
+        <div class="row">
+          <button mat-raised-button class="primary" (click)="addNote()">הוסף</button>
+        </div>
+      </section>
+
+      <!-- READY NOTES -->
+      <section class="block" *ngIf="canEditNotes && (readyNotes!.length || 0) > 0">
+        <div class="block-title">
+          <mat-icon>auto_awesome</mat-icon>
+          <span>הערות מוכנות</span>
+        </div>
+
+        <div class="chips">
+          <button
+            mat-stroked-button
+            class="chip"
+            *ngFor="let rn of readyNotes; trackBy: trackByReady"
+            (click)="addReadyNote(rn.content)">
+            {{ rn.content }}
+          </button>
+        </div>
+      </section>
+<!-- OFFICE NOTES -->
+<details class="acc office"
+      *ngIf="true"
+
+         [attr.open]="notesOffice.length ? '' : null">
+
+  <summary>
+    <span>הערות משרד</span>
+    <span class="count">{{ notesOffice.length || 0 }}</span>
+  </summary>
+
+  <div class="acc-body">
+    <p class="empty" *ngIf="!notesOffice.length">
+      אין הערות משרד.
+    </p>
+
+    <div *ngFor="let note of notesOffice; trackBy: trackByNote"
+         class="note-card office">
+
+      <div class="note-text">
+        {{ note.display_text }}
+      </div>
+
+      <div class="note-meta">
+        {{ note.created_at | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+    </div>
+  </div>
+</details>
+
+<section class="block" *ngIf="canEditOfficeNotes">
+  <div class="block-title">
+    <mat-icon>account_balance</mat-icon>
+    <span>הערת משרד (פנימית)</span>
+  </div>
+
+  <mat-form-field appearance="fill" class="full">
+    <mat-label>הערה לחיוב / משרד</mat-label>
+    <textarea matInput [(ngModel)]="newOfficeNote" rows="2"></textarea>
+  </mat-form-field>
+
+  <div class="row">
+    <button mat-raised-button color="accent"
+            (click)="addOfficeNote()">
+      שמור הערת משרד
+    </button>
+  </div>
+</section>
+
+      <div class="bottom-space"></div>
+    </div>
+  </mat-card>
+</div>

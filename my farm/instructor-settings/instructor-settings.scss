@@ -1,0 +1,550 @@
+﻿/* profile-settings.component.scss (או איך שקוראים לקובץ שלך) */
+
+/* =========================
+   Base / Tokens (קומפוננטה)
+   ========================= */
+:host {
+  /* פלטה בסגנון האתר (olive/cream) */
+  --bg: #fbfbf3;
+  --card: #ffffff;
+  --line: rgba(199, 204, 183, 0.95);
+  --muted: #6d6d62;
+  --text: #1f1f1b;
+
+  --olive-700: #6f7f2a;
+  --olive-600: #95a143;
+  --olive-500: #a9b561;
+
+  --shadow: 0 10px 26px rgba(25, 35, 20, 0.08);
+  --shadow-soft: 0 6px 16px rgba(25, 35, 20, 0.05);
+
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+
+  --pad-page: 40px;
+  --pad-card: 28px;
+
+  display: block;
+}
+
+/* חשוב: מונע גלישות וריבועים שעולים אחד על השני */
+:host,
+:host * {
+  box-sizing: border-box;
+}
+
+.settings-page {
+  direction: rtl;
+  background: var(--bg);
+  color: var(--text);
+  padding: var(--pad-page);
+  font-family: "Heebo", sans-serif;
+}
+
+/* =========================
+   Card Layout
+   ========================= */
+.settings-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: var(--pad-card);
+  max-width: 980px;
+  margin: 0 auto 28px;
+  width: 100%;
+}
+
+/* קו הפרדה עדין אם תרצי (לא חובה)
+.settings-card::after {
+  content: "";
+  display: block;
+  margin-top: 22px;
+  border-top: 1px dashed rgba(199, 204, 183, 0.7);
+}
+*/
+
+/* =========================
+   Header row (תמונה + כפתור)
+   ========================= */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  margin-bottom: 22px;
+  flex-wrap: wrap; /* מונע חפיפה במסכים קטנים */
+}
+
+.profile-pic {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  overflow: hidden;
+  background: #f4f6ea;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.profile-inner {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.profile-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.profile-pic span {
+  font-size: 34px;
+  font-weight: 900;
+  color: rgba(45, 55, 25, 0.45);
+}
+
+.upload-btn {
+  border: 1px solid var(--line);
+  background: #f6f7ea;
+  color: #263016;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  max-width: 100%;
+}
+
+.upload-btn:hover {
+  background: #eef0db;
+  border-color: rgba(155, 165, 105, 0.8);
+}
+
+.upload-btn:active {
+  transform: scale(0.98);
+}
+
+/* =========================
+   Rows → GRID כדי למנוע חפיפות
+   ========================= */
+
+/* ברירת מחדל: כל "row" הוא גריד גמיש */
+.row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+/* 2 עמודות – לא פחות מ-260px במחשב, אבל בלי לשבור במובייל */
+.row.two-cols {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* אם יש row בלי two-cols – נשאיר עמודה אחת */
+.row:not(.two-cols) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* =========================
+   Field styling
+   ========================= */
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 0; /* קריטי נגד overflow וחפיפה */
+}
+
+.field > label {
+  font-weight: 900;
+  color: #2a2f22;
+  font-size: 14px;
+}
+
+.field .field-label {
+  font-weight: 900;
+  color: #2a2f22;
+  font-size: 14px;
+}
+
+/* כל הקלטים 100% */
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid rgba(199, 204, 183, 0.95);
+  background: #fbfcf5;
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: 12px 12px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  min-width: 0;
+}
+
+/* select — שומר על אותו גובה */
+.field select {
+  padding-inline-start: 12px;
+  cursor: pointer;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: rgba(149, 161, 67, 0.85);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(149, 161, 67, 0.12);
+}
+
+/* disabled */
+.field input:disabled,
+.field select:disabled {
+  background: #f1f2ea;
+  color: rgba(31, 31, 27, 0.6);
+  cursor: not-allowed;
+}
+
+/* hint */
+.hint,
+.field .field-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* file input – יותר נקי */
+.field input[type="file"] {
+  padding: 10px;
+  background: #fff;
+}
+
+/* =========================
+   Section (כותרות)
+   ========================= */
+.section {
+  margin-top: 24px;
+}
+
+.section-title,
+.settings-section h2 {
+  font-size: 18px;
+  font-weight: 950;
+  margin: 18px 0 10px;
+  color: #22271b;
+}
+
+/* =========================
+   Settings section card feel
+   ========================= */
+.settings-section {
+  margin-top: 18px;
+  padding-top: 6px;
+}
+
+/* Grid פנימי של section */
+.fields-grid {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.fields-grid.two-cols {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fields-grid.three-cols {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* =========================
+   Inline gender chips
+   ========================= */
+.inline-gender {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(199, 204, 183, 0.95);
+  background: #ffffff;
+  border-radius: 999px;
+  font-weight: 950;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.08s ease;
+  user-select: none;
+}
+
+.chip-check:hover {
+  background: #f7f8ec;
+  border-color: rgba(155, 165, 105, 0.9);
+}
+
+.chip-check:active {
+  transform: scale(0.99);
+}
+
+.chip-check input {
+  width: 16px;
+  height: 16px;
+}
+
+/* =========================
+   Range cards (גילאים)
+   ========================= */
+.range-card {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(199, 204, 183, 0.95);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-soft);
+  width: 100%;
+}
+
+.range-card.disabled {
+  opacity: 0.6;
+  filter: grayscale(0.1);
+}
+
+.range-title {
+  font-weight: 950;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  border: 1px solid rgba(199, 204, 183, 0.95);
+  background: #f6f7ea;
+  color: #2b331c;
+}
+
+.meta-chip.muted {
+  opacity: 0.8;
+}
+
+/* errors */
+.inline-error {
+  margin-top: 8px;
+  color: #b00020;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+/* =========================
+   Notification switches
+   ========================= */
+.notif-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(199, 204, 183, 0.85);
+  background: #ffffff;
+}
+
+.switch input {
+  display: none;
+}
+
+.switch .slider {
+  width: 44px;
+  height: 24px;
+  background-color: #cfcfc3;
+  border-radius: 999px;
+  position: relative;
+  transition: background-color 0.2s ease;
+  flex: 0 0 auto;
+}
+
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.switch input:checked + .slider {
+  background-color: var(--olive-600);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.switch .switch-text {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* =========================
+   Actions / Save button
+   ========================= */
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.save-btn {
+  width: min(420px, 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+  background: var(--olive-600);
+  color: #fff;
+  font-weight: 950;
+  letter-spacing: 0.2px;
+  transition: filter 0.2s ease, transform 0.08s ease;
+  box-shadow: 0 10px 22px rgba(149, 161, 67, 0.25);
+}
+
+.save-btn:hover {
+  filter: brightness(0.95);
+}
+
+.save-btn:active {
+  transform: scale(0.99);
+}
+
+/* =========================
+   Loading
+   ========================= */
+.loading {
+  padding: 22px;
+  text-align: center;
+  font-weight: 900;
+  color: #3a3f2f;
+}
+
+/* =========================
+   Responsive (עד 300px)
+   ========================= */
+
+/* טאבלט/קטן */
+@media (max-width: 900px) {
+  :host { --pad-page: 24px; --pad-card: 22px; }
+  .settings-card { max-width: 760px; }
+}
+
+/* מובייל */
+@media (max-width: 768px) {
+  :host { --pad-page: 18px; --pad-card: 18px; }
+
+  .row.two-cols {
+    grid-template-columns: 1fr; /* מונע חפיפה – יורד לעמודה אחת */
+  }
+
+  .fields-grid.two-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .fields-grid.three-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .header-row {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .profile-pic {
+    width: 88px;
+    height: 88px;
+  }
+}
+
+/* 480px ומטה – הידוק */
+@media (max-width: 480px) {
+  .switch {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .notif-switches {
+    gap: 10px;
+  }
+
+  .upload-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* 360px ומטה – קלטים צפופים */
+@media (max-width: 360px) {
+  .settings-card { padding: 14px; }
+  .field input,
+  .field select,
+  .field textarea { padding: 11px 10px; font-size: 14px; }
+  .section-title,
+  .settings-section h2 { font-size: 16px; }
+}
+
+/* 300px – חובה: אין חפיפות/גלישה */
+@media (max-width: 300px) {
+  .settings-page { padding: 10px; }
+  .settings-card { padding: 12px; border-radius: 14px; }
+  .profile-pic { width: 76px; height: 76px; }
+  .chip-check { width: 100%; justify-content: center; }
+  .save-btn { width: 100%; }
+}
+input[type="color"] {
+  width: 56px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}

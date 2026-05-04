@@ -1,0 +1,580 @@
+<div class="monthly" dir="rtl">
+  <!-- כותרת עליונה -->
+  <header class="topbar">
+    <h1 class="page-title">
+      {{ mode() === 'month' ? monthlyTitle : yearlyTitle }}
+    </h1>
+  </header>
+
+  <!-- בחירת חודש/שנה + מצב חודשי/שנתי -->
+  <section class="filters-row">
+    <!-- טוגל חודשי/שנתי -->
+    <div class="mode-toggle">
+      <button
+        mat-stroked-button
+        [class.active]="mode() === 'month'"
+        (click)="setMode('month')"
+      >
+        חודשי
+      </button>
+
+      <button
+        mat-stroked-button
+        [class.active]="mode() === 'year'"
+        (click)="setMode('year')"
+      >
+        שנתי
+      </button>
+    </div>
+
+    <!-- בחירת שנה -->
+    <mat-select
+      [(ngModel)]="year"
+      (selectionChange)="onYearChange()"
+      class="year-select"
+    >
+      <mat-option *ngFor="let y of years" [value]="y">
+        {{ y }}
+      </mat-option>
+    </mat-select>
+
+    <!-- בחירת חודש – רק במצב חודשי -->
+    <mat-select
+      *ngIf="mode() === 'month'"
+      [(ngModel)]="month"
+      (selectionChange)="onMonthChange()"
+      class="month-select"
+    >
+      <mat-option *ngFor="let m of months" [value]="m.v">
+        {{ m.t }}
+      </mat-option>
+    </mat-select>
+  </section>
+
+  <!-- ספינר טעינה -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="40"
+    ></mat-progress-spinner>
+  </div>
+
+  <!-- כרטיסי KPI לחיצים -->
+  <section class="kpis" *ngIf="!loading">
+    <mat-card
+      class="kpi teal clickable"
+      [class.selected]="selectedKpi === 'priv_vs_group'"
+      (click)="onKpiClick('priv_vs_group')"
+    >
+      <mat-icon>groups</mat-icon>
+      <div class="value">
+        {{ kpis().privCount }} / {{ kpis().groupCount }}
+      </div>
+      <div class="label">פרטי / קבוצתי</div>
+    </mat-card>
+
+    <mat-card
+      class="kpi yellow clickable"
+      [class.selected]="selectedKpi === 'success_pct'"
+      (click)="onKpiClick('success_pct')"
+    >
+      <mat-icon>trending_up</mat-icon>
+      <div class="value">{{ kpis().successPct }}%</div>
+      <div class="label">אחוז הצלחה</div>
+    </mat-card>
+
+    <mat-card
+      class="kpi green clickable"
+      [class.selected]="selectedKpi === 'done'"
+      (click)="onKpiClick('done')"
+    >
+      <mat-icon>check_circle</mat-icon>
+      <div class="value">{{ kpis().done }}</div>
+      <div class="label">
+        {{
+          mode() === 'month'
+            ? 'שיעורים שבוצעו החודש'
+            : 'שיעורים שבוצעו השנה'
+        }}
+      </div>
+    </mat-card>
+
+    <mat-card
+      class="kpi orange clickable"
+      [class.selected]="selectedKpi === 'pending'"
+      (click)="onKpiClick('pending')"
+    >
+      <mat-icon>error</mat-icon>
+      <div class="value">{{ kpis().pending }}</div>
+      <div class="label">ממתינים</div>
+    </mat-card>
+
+    <mat-card
+      class="kpi red clickable"
+      [class.selected]="selectedKpi === 'canceled'"
+      (click)="onKpiClick('canceled')"
+    >
+      <mat-icon>cancel</mat-icon>
+      <div class="value">{{ kpis().canceled }}</div>
+      <div class="label">בוטלו</div>
+    </mat-card>
+
+    <mat-card
+      class="kpi purple clickable"
+      [class.selected]="selectedKpi === 'worked_hours'"
+      (click)="onKpiClick('worked_hours')"
+    >
+      <mat-icon>schedule</mat-icon>
+      <div class="value">{{ kpis().workedHours }}</div>
+      <div class="label">
+        {{ mode() === 'month' ? 'שעות עבודה בחודש' : 'שעות עבודה בשנה' }}
+      </div>
+    </mat-card>
+
+    <mat-card
+      class="kpi blue clickable"
+      [class.selected]="selectedKpi === 'income'"
+      (click)="onKpiClick('income')"
+    >
+      <mat-icon>attach_money</mat-icon>
+      <div class="value">₪{{ kpis().income }}</div>
+      <div class="label">
+        {{
+          mode() === 'month'
+            ? 'הכנסה בחודש (עד עכשיו)'
+            : 'הכנסה בשנה (עד עכשיו)'
+        }}
+      </div>
+    </mat-card>
+  </section>
+
+  <!-- טוגל תצוגה: גרפים / דוחות -->
+  <section class="view-mode-toggle" *ngIf="!loading">
+    <div class="view-toggle-inner">
+      <span class="view-label">תצוגה:</span>
+
+      <button
+        mat-stroked-button
+        [class.active]="viewMode === 'charts'"
+        [disabled]="mode() === 'month'"
+        (click)="setViewMode('charts')"
+      >
+        <mat-icon>insights</mat-icon>
+        גרפים
+      </button>
+
+      <button
+        mat-stroked-button
+        [class.active]="viewMode === 'reports'"
+        (click)="setViewMode('reports')"
+      >
+        <mat-icon>table_view</mat-icon>
+        דוחות
+      </button>
+    </div>
+
+    <span class="charts-disabled-hint" *ngIf="mode() === 'month'">
+      גרפים זמינים רק בתצוגה שנתית.
+    </span>
+  </section>
+
+  <!-- תצוגת גרפים -->
+  <section class="charts-section" *ngIf="!loading && viewMode === 'charts'">
+    <div class="charts-header">
+      <mat-icon>insights</mat-icon>
+      <h2>
+        {{ mode() === 'month' ? 'גרף חודשי – ' : 'גרף שנתי – ' }}
+        {{ kpiLabel(selectedKpi) }}
+      </h2>
+    </div>
+
+    <div class="charts-subtitle">
+      הגרף מציג את התפתחות המדד הנבחר כדי לאפשר לחווה לזהות מגמות של
+      צמיחה או נסיגה.
+    </div>
+
+    <!-- 🔹 מקרה מיוחד: פרטי / קבוצתי – שני קווים לאורך חודשי השנה -->
+    <ng-container
+      *ngIf="selectedKpi === 'priv_vs_group'; else singleSeriesBlock"
+    >
+      <div
+        class="simple-chart"
+        *ngIf="
+          privVsGroupCharts().priv.length &&
+          privVsGroupCharts().group.length;
+          else noChartData
+        "
+      >
+        <svg class="line-chart" viewBox="0 0 600 220" preserveAspectRatio="none">
+          <!-- ציר Y -->
+          <line
+            class="axis axis-y"
+            [attr.x1]="axisLeft"
+            [attr.y1]="axisTop"
+            [attr.x2]="axisLeft"
+            [attr.y2]="axisBottom"
+          ></line>
+
+          <!-- ציר X -->
+          <line
+            class="axis axis-x"
+            [attr.x1]="axisLeft"
+            [attr.y1]="axisBottom"
+            [attr.x2]="axisRight"
+            [attr.y2]="axisBottom"
+          ></line>
+
+          <!-- ✅ תוויות Y מינימליות (כדי לא להיות תלויים ב-yTicksPrivGroup) -->
+          <text class="y-label" x="32" [attr.y]="axisBottom + 4">0</text>
+          <text class="y-label" x="32" [attr.y]="axisTop + 10">
+            {{ maxPrivVsGroupValue() }}
+          </text>
+
+          <!-- קו לפרטי -->
+          <polyline
+            class="line line-priv"
+            [attr.points]="buildPolylineFor(privVsGroupCharts().priv, maxPrivVsGroupValue())"
+          ></polyline>
+
+          <!-- קו ללא-פרטי -->
+          <polyline
+            class="line line-group"
+            [attr.points]="buildPolylineFor(privVsGroupCharts().group, maxPrivVsGroupValue())"
+          ></polyline>
+
+          <g *ngFor="let p of privVsGroupCharts().priv; index as i">
+            <!-- נקודה לפרטי -->
+            <circle
+              class="dot dot-priv"
+              [attr.cx]="getPointX(i, privVsGroupCharts().priv.length)"
+              [attr.cy]="getPointYWithMax(p.value, maxPrivVsGroupValue())"
+              [attr.r]="3.5"
+            ></circle>
+
+            <!-- נקודה ללא-פרטי (רק אם קיימת נקודה מקבילה) -->
+            <ng-container *ngIf="privVsGroupCharts().group[i] as g">
+              <circle
+                class="dot dot-group"
+                [attr.cx]="getPointX(i, privVsGroupCharts().group.length)"
+                [attr.cy]="getPointYWithMax(g.value, maxPrivVsGroupValue())"
+                [attr.r]="3.5"
+              ></circle>
+            </ng-container>
+
+            <!-- תווית חודש -->
+            <text
+              class="x-label"
+              [attr.x]="getPointX(i, privVsGroupCharts().priv.length)"
+              y="190"
+              [attr.text-anchor]="
+                i === 0
+                  ? 'start'
+                  : (i === privVsGroupCharts().priv.length - 1 ? 'end' : 'middle')
+              "
+            >
+              {{ p.label }}
+            </text>
+          </g>
+        </svg>
+
+        <div class="legend">
+          <span class="legend-item">
+            <span class="legend-dot priv"></span>
+            פרטי
+          </span>
+
+          <span class="legend-item">
+            <span class="legend-dot group"></span>
+            לא פרטי
+          </span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- 🔹 ברירת מחדל: KPI רגיל עם קו אחד -->
+    <ng-template #singleSeriesBlock>
+      <div class="simple-chart" *ngIf="selectedChart().length; else noChartData">
+        <svg class="line-chart" viewBox="0 0 600 220" preserveAspectRatio="none">
+          <!-- ציר Y -->
+          <line class="axis axis-y" x1="40" y1="20" x2="40" y2="170"></line>
+
+          <!-- ציר X -->
+          <line class="axis axis-x" x1="40" y1="170" x2="580" y2="170"></line>
+
+          <text class="y-label" x="32" y="175">0</text>
+          <text class="y-label" x="32" y="30">{{ maxChartValue() }}</text>
+
+          <polyline class="line" [attr.points]="buildPolyline()"></polyline>
+
+          <g *ngFor="let p of selectedChart(); index as i">
+            <circle
+              class="dot"
+              [attr.cx]="getPointX(i, selectedChart().length)"
+              [attr.cy]="getPointY(p.value)"
+              r="3.5"
+            ></circle>
+
+            <text class="x-label" [attr.x]="getPointX(i, selectedChart().length)" y="190">
+              {{ p.label }}
+            </text>
+          </g>
+        </svg>
+      </div>
+    </ng-template>
+
+    <ng-template #noChartData>
+      <div class="no-chart-data">
+        אין נתונים להצגה עבור המדד הנבחר.
+      </div>
+    </ng-template>
+  </section>
+
+  <!-- טבלת פירוט שיעורים – מצב דוחות -->
+  <section class="list-section" *ngIf="!loading && viewMode === 'reports'">
+    <div class="list-header">
+      <div class="title-wrapper">
+        <mat-icon class="icon-title">calendar_month</mat-icon>
+        <h2>
+          {{
+            mode() === 'month'
+              ? 'פירוט שיעורים לחודש הנבחר'
+              : 'פירוט שיעורים לשנה הנבחרת'
+          }}
+        </h2>
+      </div>
+
+      <!-- כפתור ייצוא בראש העמוד -->
+      <button mat-stroked-button class="excel-btn-header" (click)="exportExcel()">
+        <mat-icon>table_chart</mat-icon>
+        {{ mode() === 'month' ? 'ייצוא חודשי ל־Excel' : 'ייצוא שנתי ל־Excel' }}
+      </button>
+    </div>
+
+    <!-- סינון וחיפוש -->
+    <div class="filters">
+      <!-- סוג שיעור -->
+      <div class="filter-field">
+        <label class="filter-label">סוג שיעור</label>
+        <mat-select [value]="typeFilter()" (selectionChange)="onTypeChange($event.value)">
+          <mat-option value="all">סידרה</mat-option>
+          <mat-option value="regular">רגיל</mat-option>
+          <mat-option value="makeup">השלמה</mat-option>
+        </mat-select>
+      </div>
+
+      <!-- סטטוס -->
+      <div class="filter-field">
+        <label class="filter-label">סטטוס</label>
+        <mat-select [value]="statusFilter()" (selectionChange)="onStatusChange($event.value)">
+          <mat-option value="all">כל הסטטוסים</mat-option>
+          <mat-option value="done">שיעורים שבוצעו / הושלמו</mat-option>
+          <mat-option value="approved">אושרו בלבד</mat-option>
+          <mat-option value="pending">ממתינים לאישור</mat-option>
+          <mat-option value="canceled">בוטלו</mat-option>
+        </mat-select>
+      </div>
+
+      <!-- מדריך (רק אם יש יותר מאחד) -->
+      <div class="filter-field" *ngIf="instructors().length > 1">
+        <label class="filter-label">מדריך</label>
+        <mat-select
+          [value]="instructorFilter()"
+          (selectionChange)="onInstructorChange($event.value)"
+        >
+          <mat-option value="all">כל המדריכים</mat-option>
+          <mat-option *ngFor="let inst of instructors()" [value]="inst">
+            {{ inst }}
+          </mat-option>
+        </mat-select>
+      </div>
+
+      <!-- חיפוש חופשי -->
+      <div class="filter-field search-field">
+        <label class="filter-label">חיפוש</label>
+        <div class="search">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            [value]="search()"
+            (input)="onSearchChange($event)"
+            placeholder="חפש לפי תלמיד/ה, מדריך או סוג שיעור..."
+          />
+          <button mat-icon-button *ngIf="search()" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- טבלה -->
+    <table mat-table [dataSource]="filteredLessons()" class="mat-elevation-z1">
+      <!-- Date -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>תאריך</th>
+        <td
+          mat-cell
+          *matCellDef="let l; let i = index"
+          class="responsive-cell"
+          data-label="תאריך"
+        >
+  {{ l.occur_date || '—' }}
+
+        </td>
+      </ng-container>
+
+      <!-- Student -->
+      <ng-container matColumnDef="student">
+        <th mat-header-cell *matHeaderCellDef>תלמיד/ה</th>
+        <td mat-cell *matCellDef="let l" class="responsive-cell" data-label="תלמיד/ה">
+          {{ l.child_full_name || '—' }}
+        </td>
+      </ng-container>
+
+      <!-- Instructor -->
+      <ng-container matColumnDef="instructor">
+        <th mat-header-cell *matHeaderCellDef>מדריך</th>
+        <td mat-cell *matCellDef="let l" class="responsive-cell" data-label="מדריך">
+          {{ l.instructor_name || '—' }}
+        </td>
+      </ng-container>
+
+      <!-- Lesson Type -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>סוג שיעור</th>
+        <td mat-cell *matCellDef="let l" class="responsive-cell" data-label="סוג שיעור">
+          {{ l.lesson_type || '—' }}
+        </td>
+      </ng-container>
+
+      <!-- Riding Type -->
+      <ng-container matColumnDef="ridingType">
+        <th mat-header-cell *matHeaderCellDef>סוג רכיבה</th>
+        <td mat-cell *matCellDef="let l" class="responsive-cell" data-label="סוג רכיבה">
+          {{ l.riding_type_name || l.riding_type_code || '—' }}
+        </td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>סטטוס</th>
+        <td mat-cell *matCellDef="let l" class="responsive-cell" data-label="סטטוס">
+          <span class="chip" [ngClass]="statusClass(l.status)">
+            {{ l.status || '—' }}
+          </span>
+        </td>
+      </ng-container>
+<!-- ✅ Office Note – רק למזכירה -->
+<ng-container matColumnDef="officeNote">
+
+  <th mat-header-cell *matHeaderCellDef>הערות משרד</th>
+  <td
+    mat-cell
+    *matCellDef="let l"
+    class="responsive-cell office-note-cell"
+    data-label="הערות משרד"
+  >
+    <span
+      *ngIf="l.office_note; else noOfficeNote"
+      matTooltip="{{ l.office_note }}"
+      matTooltipPosition="above"
+    >
+      {{ l.office_note }}
+    </span>
+
+    <ng-template #noOfficeNote>
+      <span class="muted">—</span>
+    </ng-template>
+  </td>
+</ng-container>
+      <!-- Start -->
+      <ng-container matColumnDef="start">
+        <th mat-header-cell *matHeaderCellDef>התחלה</th>
+        <td
+          mat-cell
+          *matCellDef="let l; let i = index"
+          class="responsive-cell"
+          data-label="התחלה"
+        >
+   {{ l.start_time || '—' }}
+
+        </td>
+      </ng-container>
+
+      <!-- End -->
+      <ng-container matColumnDef="end">
+        <th mat-header-cell *matHeaderCellDef>סיום</th>
+        <td
+          mat-cell
+          *matCellDef="let l; let i = index"
+          class="responsive-cell"
+          data-label="סיום"
+        >
+  {{ l.end_time || '—' }}
+
+        </td>
+      </ng-container>
+
+      <!-- Header & rows -->
+<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+<tr
+  mat-row
+  *matRowDef="let row; columns: displayedColumns"
+></tr>
+
+    </table>
+
+    <div class="empty" *ngIf="!filteredLessons().length">
+      אין רשומות תואמות לסינון הנוכחי.
+    </div>
+  </section>
+
+  <!-- תובנות חודשיות/שנתיות – מצב דוחות -->
+  <section class="insights-section" *ngIf="!loading && viewMode === 'reports'">
+    <div class="insights-header">
+      <mat-icon>insights</mat-icon>
+      <h2>
+        {{ mode() === 'month' ? 'תובנות חודשיות' : 'תובנות שנתיות' }}
+      </h2>
+    </div>
+
+    <ul class="insights-list">
+      <li>
+        <span class="label">
+          {{ mode() === 'month' ? 'סה״כ שיעורים בחודש:' : 'סה״כ שיעורים בשנה:' }}
+        </span>
+        <span class="value highlight">
+          {{ insights().totalLessons }}
+        </span>
+      </li>
+      <li>
+        <span class="label">אחוז ביטולים:</span>
+        <span class="value red">
+          {{ insights().cancelPct }}%
+        </span>
+      </li>
+      <li>
+        <span class="label">אחוז הצלחה:</span>
+        <span class="value green">
+          {{ insights().successPct }}%
+        </span>
+      </li>
+      <li>
+        <span class="label">
+          {{ mode() === 'month' ? 'מספר תלמידים פעילים החודש:' : 'מספר תלמידים שונים בשנה:' }}
+        </span>
+        <span class="value orange">
+          {{ insights().newStudents }}
+        </span>
+      </li>
+      <li>
+        <span class="label">
+          {{ mode() === 'month' ? 'הכנסה ממוצעת לשיעור:' : 'הכנסה ממוצעת לשיעור בשנה:' }}
+        </span>
+        <span class="value highlight">
+          ₪{{ insights().avgIncome }}
+        </span>
+      </li>
+    </ul>
+  </section>
+</div>

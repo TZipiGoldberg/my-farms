@@ -1,0 +1,83 @@
+<h2 mat-dialog-title>פרטי שיעור</h2>
+
+<div mat-dialog-content class="dialog-body">
+  <div class="row">
+    <span class="label">ילד/ה:</span>
+    <span class="value">{{ data.childName }}</span>
+  </div>
+
+  <div class="row" *ngIf="data.instructorName">
+    <span class="label">מדריך/ה:</span>
+    <span class="value">{{ data.instructorName }}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">תאריך:</span>
+    <span class="value">{{ data.dateStr }}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">שעה:</span>
+    <span class="value">{{ data.timeStr }}</span>
+  </div>
+
+  <div class="row" *ngIf="data.lessonType">
+    <span class="label">סוג שיעור:</span>
+    <span class="value">{{ data.lessonType }}</span>
+  </div>
+
+  <div class="row" *ngIf="data.status">
+    <span class="label">סטטוס:</span>
+    <span class="value">{{ data.status }}</span>
+  </div>
+
+  <div class="cancel-block" *ngIf="data.canCancel; else cannotCancelTpl">
+    <h3>בקשת ביטול שיעור</h3>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>סיבת ביטול</mat-label>
+      <mat-select [(ngModel)]="reasonType">
+        <mat-option value="sick">הילד/ה חולה</mat-option>
+        <mat-option value="personal">סיבה אישית</mat-option>
+        <mat-option value="other">אחר</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field
+      *ngIf="reasonType === 'other' || reasonType === 'personal'"
+      appearance="outline"
+      class="full-width"
+    >
+      <mat-label>פירוט נוסף (אופציונלי)</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        [(ngModel)]="reasonText"
+        placeholder="כתבי כאן פירוט קצר"
+      ></textarea>
+    </mat-form-field>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </div>
+
+  <ng-template #cannotCancelTpl>
+    <p class="hint">
+      לא ניתן לבטל את השיעור הזה דרך המערכת (שעה קרובה או סטטוס לא מאפשר).
+      במידת הצורך פנו למזכירה.
+    </p>
+  </ng-template>
+</div>
+
+  <div mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="onClose()" [disabled]="loading">סגור</button>
+  <button
+    mat-flat-button
+    color="primary"
+    *ngIf="data.canCancel"
+    (click)="onConfirm()"
+    [disabled]="!canSubmit || loading"
+  >
+    שליחת בקשת ביטול
+  </button>
+</div>
+

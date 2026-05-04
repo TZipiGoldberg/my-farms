@@ -1,0 +1,152 @@
+:host {
+  direction: rtl;
+  display: block;
+
+  --bg-cream: #fffcf5;
+  --panel: #ffffff;
+  --ink: #2f3a28;
+  --ink-muted: #6e7462;
+  --line: #cfd7b9;
+  --olive-50: #f3f6e9;
+  --olive-600: #748c40;
+  --olive-700: #5d7234;
+  --fail: #b91c1c;
+}
+
+/* כותרת הדיאלוג */
+::ng-deep .mat-mdc-dialog-title,
+h2[mat-dialog-title] {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* גוף הדיאלוג */
+.dialog-body {
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* שורות מידע (ילד, מדריך, תאריך...) */
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.label {
+  font-weight: 600;
+  color: var(--ink-muted);
+  min-width: 72px;
+}
+
+.value {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* בלוק בקשת ביטול */
+.cancel-block {
+  margin-top: 12px;
+  padding: 10px 12px 12px;
+  background: var(--bg-cream);
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+
+.cancel-block h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* mat-form-field מלא רוחב */
+.full-width {
+  width: 100%;
+}
+
+/* הודעת שגיאה */
+.error {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--fail);
+}
+
+/* טקסט "לא ניתן לבטל" */
+.hint {
+  margin-top: 10px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ink-muted);
+  background: var(--bg-cream);
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+}
+
+/* אזור כפתורים למטה */
+.dialog-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* כפתור "סגור" – טקסט פשוט */
+.dialog-actions button[mat-button] {
+  border-radius: 999px;
+}
+
+/* כפתור "שליחת בקשת ביטול" – כפתור ראשי לפי הסטייל של המערכת */
+.dialog-actions button[mat-flat-button] {
+  border-radius: 999px;
+  padding-inline: 16px;
+  font-weight: 700;
+  background: var(--olive-600);
+}
+
+.dialog-actions button[mat-flat-button]:hover:not(:disabled) {
+  background: var(--olive-700);
+}
+
+/* רספונסיביות למובייל */
+@media (max-width: 480px) {
+  .dialog-body {
+    padding-inline: 4px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    row-gap: 2px;
+  }
+
+  .label {
+    font-size: 0.8rem;
+  }
+
+  .value {
+    font-size: 0.9rem;
+  }
+
+  .cancel-block {
+    margin-top: 10px;
+    padding: 8px 10px;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    margin-top: 16px;
+  }
+
+  .dialog-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
